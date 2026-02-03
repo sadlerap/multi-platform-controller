@@ -17,14 +17,11 @@ default: build
 fmt: ## Run go fmt against code.
 	$(GOLANGCI_LINT) fmt $(FMT_ARGS) ./...
 
-vet: ## Run go vet against code.
-	go vet ./cmd/... ./pkg/...
-
 manifests: controller-gen
 	$(CONTROLLER_GEN) rbac:roleName=manager-role paths="./..." output:rbac:dir=deploy/operator/rbac
 
 .PHONY: test
-test: fmt vet ## Run tests.
+test: fmt lint ## Run tests.
 	$(GINKGO) --race -p --github-output -coverprofile cover.out -covermode atomic --json-report=test-report.json -v ././cmd/... ././pkg/...
 
 .PHONY: lint
@@ -35,7 +32,7 @@ lint-go:
 	$(GOLANGCI_LINT) run $(LINT_ARGS) ./...
 
 .PHONY: build
-build: fmt vet clean manifests
+build: fmt lint clean manifests
 	go build -o out/multi-platform-controller cmd/controller/main.go
 	env GOOS=linux GOARCH=amd64 go build -o out/multi-platform-controller ./cmd/controller
 
