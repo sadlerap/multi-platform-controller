@@ -14,9 +14,11 @@ GINKGO ?= go run github.com/onsi/ginkgo/v2/ginkgo
 
 default: build
 
+.PHONY: fmt
 fmt: ## Run go fmt against code.
 	$(GOLANGCI_LINT) fmt $(FMT_ARGS) ./...
 
+.PHONY: manifests
 manifests: controller-gen
 	$(CONTROLLER_GEN) rbac:roleName=manager-role paths="./..." output:rbac:dir=deploy/operator/rbac
 
